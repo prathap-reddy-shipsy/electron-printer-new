@@ -5,6 +5,8 @@
 
 // NODE_MODULE_VERSION was incremented for v0.11
 
+#define MY_NODE_MODULE_ISOLATE_GET v8::Isolate* isolate = v8::Isolate::GetCurrent();
+#define MY_NODE_MODULE_CTX v8::Local<v8::Context> context = isolate->GetCurrentContext();
 
 #if NODE_VERSION_AT_LEAST(0, 11, 9)
 #  define MY_NODE_MODULE_ISOLATE_DECL v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -21,7 +23,7 @@
 #  define RETURN_EXCEPTION(msg)  isolate->ThrowException(v8::Exception::TypeError(msg));    \
     return
 
-#  define RETURN_EXCEPTION_STR(msg) RETURN_EXCEPTION(V8_STRING_NEW_UTF8(msg))
+#  define RETURN_EXCEPTION_STR(msg) RETURN_EXCEPTION(V8_STRING_NEW_UTF8(msg).ToLocalChecked())
 #  define MY_NODE_MODULE_RETURN_VALUE(value)   iArgs.GetReturnValue().Set(value);   \
     return
 #  define MY_NODE_MODULE_RETURN_UNDEFINED()   return
@@ -89,11 +91,11 @@
 
 #define REQUIRE_ARGUMENT_STRING(args, i, var)                                        \
     ARG_CHECK_STRING(args, i);                                                       \
-    v8::String::Utf8Value var(args[i]->ToString());
+    v8::String::Utf8Value var(isolate, args[i]->ToString(context).ToLocalChecked());
 
 #define REQUIRE_ARGUMENT_STRINGW(args, i, var)                                        \
     ARG_CHECK_STRING(args, i);                                                       \
-    v8::String::Value var(args[i]->ToString());
+    v8::String::Value var(isolate, args[i]->ToString(context).ToLocalChecked());
 
 
 #define OPTIONAL_ARGUMENT_FUNCTION(i, var)                                     \
@@ -109,7 +111,7 @@
 #define REQUIRE_ARGUMENT_INTEGER(args, i, var)                             \
     int var;                                                                   \
     if (args[i]->IsInt32()) {                                             \
-        var = args[i]->Int32Value();                                           \
+        var = args[i]->Int32Value(context).FromJust();                                           \
     }                                                                          \
     else {                                                                     \
         RETURN_EXCEPTION_STR("Argument " #i " must be an integer");                 \

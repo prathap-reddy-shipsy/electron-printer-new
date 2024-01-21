@@ -24,7 +24,9 @@ bool getStringOrBufferFromV8Value(v8::Handle<v8::Value> iV8Value, std::string &o
 {
     if(iV8Value->IsString())
     {
-        v8::String::Utf8Value data_str_v8(iV8Value->ToString());
+		v8::Isolate* isolate = v8::Isolate::GetCurrent();
+		v8::Local<v8::Context> context = isolate->GetCurrentContext();
+        v8::String::Utf8Value data_str_v8(isolate, iV8Value->ToString(context).ToLocalChecked());
         oData.assign(*data_str_v8, data_str_v8.length());
         return true;
     }

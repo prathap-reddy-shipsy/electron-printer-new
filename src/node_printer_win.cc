@@ -26,6 +26,7 @@ namespace{
         /** Constructor of allocating iSizeKbytes bytes memory;
         * @param iSizeKbytes size in bytes of required allocating memory
         */
+		
         MemValue(const DWORD iSizeKbytes) {
             _value = (Type*)malloc(iSizeKbytes);
         }
@@ -201,15 +202,19 @@ namespace{
         return result;
     }
 
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Local<v8::Context> context = isolate->GetCurrentContext();
+
     void parseJobObject(JOB_INFO_2W *job, v8::Handle<v8::Object> result_printer_job)
     {
         MY_NODE_MODULE_ISOLATE_DECL
         //Common fields
         //DWORD                JobId;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("id"), V8_VALUE_NEW(Number, job->JobId));
+	
+        result_printer_job->Set(context,V8_STRING_NEW_UTF8("id").ToLocalChecked(), V8_VALUE_NEW(Number, job->JobId));
 #define ADD_V8_STRING_PROPERTY(name, key) if((job->##key != NULL) && (*job->##key != L'\0'))    \
         {                                   \
-            result_printer_job->Set(V8_STRING_NEW_UTF8(#name), V8_STRING_NEW_2BYTES((uint16_t*)job->##key)); \
+            result_printer_job->Set(context,V8_STRING_NEW_UTF8(#name).ToLocalChecked(), V8_STRING_NEW_2BYTES((uint16_t*)job->##key).ToLocalChecked()); \
         }
         //LPTSTR               pPrinterName;
         ADD_V8_STRING_PROPERTY(name, pPrinterName)
@@ -220,9 +225,9 @@ namespace{
         //LPTSTR               pDatatype;
         ADD_V8_STRING_PROPERTY(format, pDatatype);
         //DWORD                Priority;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("priority"), V8_VALUE_NEW(Number, job->Priority));
+        result_printer_job->Set(context,V8_STRING_NEW_UTF8("priority").ToLocalChecked(), V8_VALUE_NEW(Number, job->Priority));
         //DWORD                Size;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("size"), V8_VALUE_NEW(Number, job->Size));
+        result_printer_job->Set(context, V8_STRING_NEW_UTF8("size").ToLocalChecked(), V8_VALUE_NEW(Number, job->Size));
         //DWORD                Status;
         v8::Local<v8::Array> result_printer_job_status = V8_VALUE_NEW_DEFAULT_V_0_11_10(Array);
         int i_status = 0;
@@ -230,15 +235,15 @@ namespace{
         {
             if(job->Status & itStatus->second)
             {
-                result_printer_job_status->Set(i_status++, V8_STRING_NEW_UTF8(itStatus->first.c_str()));
+                result_printer_job_status->Set(context,i_status++, V8_STRING_NEW_UTF8(itStatus->first.c_str()).ToLocalChecked());
             }
         }
         //LPTSTR               pStatus;
         if((job->pStatus != NULL) && (*job->pStatus != L'\0'))
         {
-            result_printer_job_status->Set(i_status++, V8_STRING_NEW_2BYTES((uint16_t*)job->pStatus));
+            result_printer_job_status->Set(context, i_status++, V8_STRING_NEW_2BYTES((uint16_t*)job->pStatus).ToLocalChecked());
         }
-        result_printer_job->Set(V8_STRING_NEW_UTF8("status"), result_printer_job_status);
+        result_printer_job->Set(context, V8_STRING_NEW_UTF8("status").ToLocalChecked(), result_printer_job_status);
 
         // Specific fields
         //LPTSTR               pMachineName;
@@ -257,18 +262,18 @@ namespace{
         //LPDEVMODE            pDevMode;
         //PSECURITY_DESCRIPTOR pSecurityDescriptor;
         //DWORD                Position;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("position"), V8_VALUE_NEW(Number, job->Position));
+        result_printer_job->Set(context,V8_STRING_NEW_UTF8("position").ToLocalChecked(), V8_VALUE_NEW(Number, job->Position));
         //DWORD                StartTime;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("startTime"), V8_VALUE_NEW(Number, job->StartTime));
+        result_printer_job->Set(context,V8_STRING_NEW_UTF8("startTime").ToLocalChecked(), V8_VALUE_NEW(Number, job->StartTime));
         //DWORD                UntilTime;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("untilTime"), V8_VALUE_NEW(Number, job->UntilTime));
+        result_printer_job->Set(context,V8_STRING_NEW_UTF8("untilTime").ToLocalChecked(), V8_VALUE_NEW(Number, job->UntilTime));
         //DWORD                TotalPages;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("totalPages"), V8_VALUE_NEW(Number, job->TotalPages));
+        result_printer_job->Set(context,V8_STRING_NEW_UTF8("totalPages").ToLocalChecked(), V8_VALUE_NEW(Number, job->TotalPages));
         //SYSTEMTIME           Submitted;
         //DWORD                Time;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("time"), V8_VALUE_NEW(Number, job->Time));
+        result_printer_job->Set(context,V8_STRING_NEW_UTF8("time").ToLocalChecked(), V8_VALUE_NEW(Number, job->Time));
         //DWORD                PagesPrinted;
-        result_printer_job->Set(V8_STRING_NEW_UTF8("pagesPrinted"), V8_VALUE_NEW(Number, job->PagesPrinted));
+        result_printer_job->Set(context,V8_STRING_NEW_UTF8("pagesPrinted").ToLocalChecked(), V8_VALUE_NEW(Number, job->PagesPrinted));
     }
 
     /**
@@ -328,7 +333,7 @@ namespace{
         {
             v8::Local<v8::Object> result_printer_job = V8_VALUE_NEW_DEFAULT_V_0_11_10(Object);
             parseJobObject(job, result_printer_job);
-            result_printer_jobs->Set(i, result_printer_job);
+            result_printer_jobs->Set(context,i, result_printer_job);
         }
         return std::string("");
     }
@@ -338,7 +343,7 @@ namespace{
         MY_NODE_MODULE_ISOLATE_DECL
     #define ADD_V8_STRING_PROPERTY(name, key) if((printer->##key != NULL) && (*printer->##key != L'\0'))    \
         {                                   \
-            result_printer->Set(V8_STRING_NEW_UTF8(#name), V8_STRING_NEW_2BYTES((uint16_t*)printer->##key)); \
+            result_printer->Set(context,V8_STRING_NEW_UTF8(#name).ToLocalChecked(), V8_STRING_NEW_2BYTES((uint16_t*)printer->##key).ToLocalChecked()); \
         }
         //LPTSTR               pPrinterName;
         ADD_V8_STRING_PROPERTY(name, pPrinterName)
@@ -372,12 +377,12 @@ namespace{
         {
             if(printer->Status & itStatus->second)
             {
-                result_printer_status->Set(i_status, V8_STRING_NEW_UTF8(itStatus->first.c_str()));
+                result_printer_status->Set(context,i_status, V8_STRING_NEW_UTF8(itStatus->first.c_str()).ToLocalChecked());
                 ++i_status;
             }
         }
-        result_printer->Set(V8_STRING_NEW_UTF8("status"), result_printer_status);
-        result_printer->Set(V8_STRING_NEW_UTF8("statusNumber"), V8_VALUE_NEW(Number, printer->Status));
+        result_printer->Set(context, V8_STRING_NEW_UTF8("status").ToLocalChecked(), result_printer_status);
+        result_printer->Set(context, V8_STRING_NEW_UTF8("statusNumber").ToLocalChecked(), V8_VALUE_NEW(Number, printer->Status));
         //DWORD                Attributes;
         v8::Local<v8::Array> result_printer_attributes = V8_VALUE_NEW_DEFAULT_V_0_11_10(Array);
         int i_attribute = 0;
@@ -385,29 +390,29 @@ namespace{
         {
             if(printer->Attributes & itAttribute->second)
             {
-                result_printer_attributes->Set(i_attribute, V8_STRING_NEW_UTF8(itAttribute->first.c_str()));
+                result_printer_attributes->Set(context,i_attribute, V8_STRING_NEW_UTF8(itAttribute->first.c_str()).ToLocalChecked());
                 ++i_attribute;
             }
         }
-        result_printer->Set(V8_STRING_NEW_UTF8("attributes"), result_printer_attributes);
+        result_printer->Set(context,V8_STRING_NEW_UTF8("attributes").ToLocalChecked(), result_printer_attributes);
         //DWORD                Priority;
-        result_printer->Set(V8_STRING_NEW_UTF8("priority"), V8_VALUE_NEW(Number, printer->Priority));
+        result_printer->Set(context, V8_STRING_NEW_UTF8("priority").ToLocalChecked(), V8_VALUE_NEW(Number, printer->Priority));
         //DWORD                DefaultPriority;
-        result_printer->Set(V8_STRING_NEW_UTF8("defaultPriority"), V8_VALUE_NEW(Number, printer->DefaultPriority));
+        result_printer->Set(context, V8_STRING_NEW_UTF8("defaultPriority").ToLocalChecked(), V8_VALUE_NEW(Number, printer->DefaultPriority));
         //DWORD                cJobs;
         //result_printer->Set(V8_STRING_NEW_UTF8("jobs"), V8_VALUE_NEW(Number, printer->cJobs));
         //DWORD                AveragePPM;
-        result_printer->Set(V8_STRING_NEW_UTF8("averagePPM"), V8_VALUE_NEW(Number, printer->AveragePPM));
+        result_printer->Set(context, V8_STRING_NEW_UTF8("averagePPM").ToLocalChecked(), V8_VALUE_NEW(Number, printer->AveragePPM));
 
         //DWORD                StartTime;
         if(printer->StartTime > 0)
         {
-            result_printer->Set(V8_STRING_NEW_UTF8("startTime"), V8_VALUE_NEW(Number, printer->StartTime));
+            result_printer->Set(context, V8_STRING_NEW_UTF8("startTime").ToLocalChecked(), V8_VALUE_NEW(Number, printer->StartTime));
         }
         //DWORD                UntilTime;
         if(printer->UntilTime > 0)
         {
-            result_printer->Set(V8_STRING_NEW_UTF8("untilTime"), V8_VALUE_NEW(Number, printer->UntilTime));
+            result_printer->Set(context, V8_STRING_NEW_UTF8("untilTime").ToLocalChecked(), V8_VALUE_NEW(Number, printer->UntilTime));
         }
 
         //TODO: to finish to extract all data
@@ -423,7 +428,7 @@ namespace{
             {
                 return error_str;
             }
-            result_printer->Set(V8_STRING_NEW_UTF8("jobs"), result_printer_jobs);
+            result_printer->Set(context, V8_STRING_NEW_UTF8("jobs").ToLocalChecked(), result_printer_jobs);
         }
         return "";
     }
@@ -465,7 +470,7 @@ MY_NODE_MODULE_CALLBACK(getPrinters)
         {
             RETURN_EXCEPTION_STR(error_str.c_str());
         }
-        result->Set(i, result_printer);
+        result->Set(context,i, result_printer);
     }
     MY_NODE_MODULE_RETURN_VALUE(result);
 }
@@ -478,17 +483,17 @@ MY_NODE_MODULE_CALLBACK(getDefaultPrinterName)
     GetDefaultPrinterW(NULL, &cSize);
 
     if(cSize == 0) {
-        MY_NODE_MODULE_RETURN_VALUE(V8_STRING_NEW_UTF8(""));
+        MY_NODE_MODULE_RETURN_VALUE(V8_STRING_NEW_UTF8("").ToLocalChecked());
     }
 
     MemValue<uint16_t> bPrinterName(cSize*sizeof(uint16_t));
     BOOL res = GetDefaultPrinterW((LPWSTR)(bPrinterName.get()), &cSize);
 
     if(!res) {
-        MY_NODE_MODULE_RETURN_VALUE(V8_STRING_NEW_UTF8(""));
+        MY_NODE_MODULE_RETURN_VALUE(V8_STRING_NEW_UTF8("").ToLocalChecked());
     }
 
-    MY_NODE_MODULE_RETURN_VALUE(V8_STRING_NEW_2BYTES((uint16_t*)bPrinterName.get()));
+    MY_NODE_MODULE_RETURN_VALUE(V8_STRING_NEW_2BYTES((uint16_t*)bPrinterName.get()).ToLocalChecked());
 }
 
 MY_NODE_MODULE_CALLBACK(getPrinter)
@@ -611,7 +616,7 @@ MY_NODE_MODULE_CALLBACK(getSupportedJobCommands)
     int i = 0;
     for(StatusMapType::const_iterator itJob = getJobCommandMap().begin(); itJob != getJobCommandMap().end(); ++itJob)
     {
-        result->Set(i++, V8_STRING_NEW_UTF8(itJob->first.c_str()));
+        result->Set(context,i++, V8_STRING_NEW_UTF8(itJob->first.c_str()).ToLocalChecked());
     }
     MY_NODE_MODULE_RETURN_VALUE(result);
 }
@@ -655,7 +660,7 @@ MY_NODE_MODULE_CALLBACK(getSupportedPrintFormats)
 
         _DATATYPES_INFO_1W *pDataType = dataTypes.get();
         for(DWORD j = 0; j < dataTypesNum; ++j, ++pDataType) {
-            result->Set(format_i++, V8_STRING_NEW_2BYTES((uint16_t*)(pDataType->pName)));
+            result->Set(context,format_i++, V8_STRING_NEW_2BYTES((uint16_t*)(pDataType->pName)).ToLocalChecked());
         }
     }
 
