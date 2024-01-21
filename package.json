@@ -1,21 +1,18 @@
 {
-  "name": "electron-printer",
+  "name": "electron-printer-new",
   "description": "Node.js printer bindings -  electron builds",
-  "version": "0.0.5",
-  "homepage": "https://github.com/marcopiraccini/electron-printer",
-  "author": {
-    "name": "Marco Piraccini",
-    "email": "marco.piraccini@gmail.com"
-  },
+  "version": "1.0.0",
+  "homepage": "https://github.com/siva7170/electron-printer-new",
+  "author": "Marco Piraccini <marco.piraccini@gmail.com>",
   "contributors": [
-    "Name Lastname <email@server.com>"
+    "Siva <siva7170430@gmail.com>"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/marcopiraccini/electron-printer.git"
+    "url": "git://github.com/siva7170/electron-printer-new.git"
   },
   "engines": {
-    "electron": ">=0.36"
+    "electron": ">=28.1.3"
   },
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
@@ -35,11 +32,9 @@
   "dependencies": {
     "nan": "^2.18.0",
     "@mapbox/node-pre-gyp": "^1.0.11",
-    "node-pre-gyp-github": "^1.4.4"
+    "node-pre-gyp-github": "^1.4.4",
+    "node-pre-gyp": "*"
   },
-  "bundledDependencies": [
-    "node-pre-gyp"
-  ],
   "devDependencies": {
     "nodeunit": "*"
   },
@@ -48,5 +43,21 @@
       "type": "MIT"
     }
   ],
-  "main": "./index"
+  "main": "./index",
+  "bundleDependencies": [
+    "node-pre-gyp"
+  ],
+  "bugs": {
+    "url": "https://github.com/marcopiraccini/electron-printer/issues"
+  },
+  "directories": {
+    "example": "examples",
+    "lib": "lib"
+  },
+  "keywords": [
+    "electron-printer",
+    "thermal-printer",
+    "node-thermal-printer"
+  ],
+  "license": "ISC"
 }
