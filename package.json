@@ -2,14 +2,14 @@
   "name": "electron-printer-new",
   "description": "Node.js printer bindings -  electron builds",
   "version": "1.0.0",
-  "homepage": "https://github.com/siva7170/electron-printer-new",
+  "homepage": "https://github.com/prathap-reddy-shipsy/electron-printer-new",
   "author": "Marco Piraccini <marco.piraccini@gmail.com>",
   "contributors": [
-    "Siva <siva7170430@gmail.com>"
+    "Prathap <prathap-reddy-shipsy>"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/siva7170/electron-printer-new.git"
+    "url": "git://github.com/prathap-reddy-shipsy/electron-printer-new.git"
   },
   "engines": {
     "electron": ">=28.1.3"
